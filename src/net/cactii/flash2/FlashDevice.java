@@ -189,6 +189,9 @@ public class FlashDevice {
                         }
                         mReader.close();
                         mReader = null;
+                        if (mWakeLock.isHeld()) {
+                            mWakeLock.release();
+                        }
                         break;
                     case DEATH_RAY:
                     case ON:
@@ -197,9 +200,11 @@ public class FlashDevice {
                         mWriter.flush();
                         mWriter.close();
                         mWriter = null;
-                        break;
+                        if (!mWakeLock.isHeld()) {
+                            mWakeLock.acquire();
                         }
-                        mFlashMode = mode;
+                        break;
+                }
             } else {
                 // Devices with sysfs toggle and sysfs luminosity
                 if (mFlashDeviceLuminosity != null && mFlashDeviceLuminosity.length() > 0) {
